@@ -31,6 +31,7 @@ class MonitorLess implements IMonitor
 		var newmod = sys.FileSystem.stat(src).mtime.getTime();
 		if(newmod > mod)
 		{
+			LiveHaxe.clear();
 			compileLess();
 			mod = newmod;
 		}

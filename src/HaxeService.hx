@@ -2,7 +2,7 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
 
-class HaxeService
+class HaxeService 
 {
 	public static function isPortInUse(port : Int) : Bool
 	{
@@ -22,12 +22,8 @@ class HaxeService
 	}
 	public static function start(port : Int)
 	{
-		try{
-			var cmd = 'haxe --wait $port &';
-			Sys.command(cmd);
-		}catch ( error:Dynamic ){
-			trace('Error starting the haxe server: $error');
-		}
+		var cmd = 'haxe --wait $port &';
+		Sys.command(cmd);
 	}
 	public static function compile(hxml : String, port : Int, errorFile : Null<String>)
 	{
@@ -45,7 +41,7 @@ class HaxeService
 		Sys.println(stdout);
 
 		switch exitCode {
-			case 0:
+			case 0: 
 				var timeTaken = Sys.time() - start;
 				Sys.println('Compiled $hxml in $timeTaken');
 				if (errorFile!=null) FileSystem.deleteFile(errorFile);
