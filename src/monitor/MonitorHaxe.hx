@@ -1,6 +1,5 @@
 package monitor;
 
-import sys.io.Process;
 using StringTools;
 using haxe.io.Path;
 
@@ -51,7 +50,6 @@ class MonitorHaxe implements IMonitor
 		// compare with existing ones
 		if(!compareMaps(map, newmap)) {
 			// compile
-			LiveHaxe.clear();
 			HaxeService.compile(hxml, port, errorFile);
 			// update map
 			map = newmap;
@@ -74,54 +72,17 @@ class MonitorHaxe implements IMonitor
 		return true;
 	}
 
-	function parseHxmlClassPaths(origContent : String)
+	function parseHxmlClassPaths(content : String)
 	{
-		var cpRE = ~/^\s*[-]cp\s+([^\n]+)(?:\n|$)/m,
-			libRE = ~/^\s*[-]lib\s+([^: \s]+)(?:\n|$)/m,
+		var re = ~/^\s*[-]cp\s+([^\n]+)(?:\n|$)/m,
 			results = [];
-		
-		// Extract `-cp` paths from the hxml
-		var content = origContent;
-		while(cpRE.match(content))
+		while(re.match(content))
 		{
-			var v = cpRE.matched(1);
+			var v = re.matched(1);
 			results.push( v.trim() );
-			content = cpRE.matchedRight();
+			content = re.matchedRight();
 		}
-
-		// Extract `-lib` paths from the hxml, including dependencies, and check for paths
-		// which are outside the Haxelib repo, (probably the dev versions we want to monitor).
-		var content = origContent;
-		var haxelibPath = getCmdOutput("haxelib",["config"]).trim();
-		var pathArgs = ["path"];
-		while(libRE.match(content))
-		{
-			var libName = libRE.matched(1).trim();
-			pathArgs.push(libName);
-			content = libRE.matchedRight();
-		}
-		var libPaths = getCmdOutput("haxelib",pathArgs);
-		for (line in libPaths.split("\n"))
-		{
-			line = line.trim();
-			var isEmpty = line.length==0;
-			var isDefineLine = line.startsWith("-");
-			var isInsideHaxelibRepo = line.startsWith(haxelibPath);
-			var isAlreadyListed = results.indexOf(line)!=-1;
-			if ( (isEmpty || isDefineLine || isInsideHaxelibRepo || isAlreadyListed)==false ) {
-				results.push(line);
-			}
-		}
-		Sys.println( 'Monitoring Class Paths:' );
-		for (r in results) Sys.println( ' $r' );
 		return results;
-	}
-
-	function getCmdOutput(cmd : String, args : Array<String>)
-	{
-		var p = new Process(cmd,args);
-		p.exitCode();
-		return p.stdout.readAll().toString();
 	}
 
 	function loadFiles()

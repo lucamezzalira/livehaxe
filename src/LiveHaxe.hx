@@ -14,13 +14,9 @@ class LiveHaxe
 
 	static public function error(msg : String)
 	{
+
 		Sys.println(msg);
 		Sys.exit(1);
-	}
-
-	static public function clear()
-	{
-		Sys.command('clear');
 	}
 
 	static public function print(msg : String)
